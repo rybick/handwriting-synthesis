@@ -5,3 +5,9 @@ data/processed
 
 logs
 predictions
+
+.idea/
+handwriting-synthesis.iml
+out
+__pycache__
+.python-version
