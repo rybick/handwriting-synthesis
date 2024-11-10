@@ -8,6 +8,11 @@ import drawing
 import lyrics
 from rnn import rnn
 
+from enum import Enum
+
+class TextAlign(Enum):
+    CENTER = 0
+    LEFT = 1
 
 class Hand(object):
 
@@ -38,7 +43,7 @@ class Hand(object):
         )
         self.nn.restore()
 
-    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None):
+    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, align=TextAlign.CENTER):
         valid_char_set = set(drawing.alphabet)
         for line_num, line in enumerate(lines):
             if len(line) > 75:
@@ -59,7 +64,7 @@ class Hand(object):
                     )
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, align=align)
 
     def _sample(self, lines, biases=None, styles=None):
         num_samples = len(lines)
@@ -107,7 +112,7 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None):
+    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, align=TextAlign.CENTER):
         stroke_colors = stroke_colors or ['black']*len(lines)
         stroke_widths = stroke_widths or [2]*len(lines)
 
@@ -133,7 +138,7 @@ class Hand(object):
 
             strokes[:, 1] *= -1
             strokes[:, :2] -= strokes[:, :2].min() + initial_coord
-            strokes[:, 0] += (view_width - strokes[:, 0].max()) / 2
+            strokes[:, 0] += 0 if align == TextAlign.LEFT else (view_width - strokes[:, 0].max()) / 2
 
             prev_eos = 1.0
             p = "M{},{} ".format(0, 0)
